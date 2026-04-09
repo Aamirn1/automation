@@ -17,6 +17,12 @@ import ContentPage from "./pages/dashboard/ContentPage";
 import SchedulePage from "./pages/dashboard/SchedulePage";
 import SubscriptionPage from "./pages/dashboard/SubscriptionPage";
 import SettingsPage from "./pages/dashboard/SettingsPage";
+import AdminLayout from "./components/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminPayments from "./pages/admin/AdminPayments";
+import AdminContent from "./pages/admin/AdminContent";
+import AdminSchedules from "./pages/admin/AdminSchedules";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +46,13 @@ const App = () => (
             <Route path="schedule" element={<SchedulePage />} />
             <Route path="subscription" element={<SubscriptionPage />} />
             <Route path="settings" element={<SettingsPage />} />
+          </Route>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminOverview />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="payments" element={<AdminPayments />} />
+            <Route path="content" element={<AdminContent />} />
+            <Route path="schedules" element={<AdminSchedules />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

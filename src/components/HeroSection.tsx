@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import heroBg from "@/assets/hero-bg.jpg";
 
 const phrases = [
   "Automate Your Social Videos",
@@ -36,12 +37,24 @@ export function HeroSection() {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-      {/* Background glow */}
-      <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-20 blur-[120px] bg-primary" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full opacity-10 blur-[100px] bg-secondary" />
+      {/* Hero background image */}
+      <div className="absolute inset-0">
+        <img
+          src={heroBg}
+          alt=""
+          className="w-full h-full object-cover"
+          width={1920}
+          height={1080}
+        />
+        <div className="absolute inset-0 bg-background/70" />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, hsl(240 15% 5% / 0.5), hsl(240 15% 5% / 0.9))" }} />
+      </div>
 
-      {/* Floating 3D-ish shapes */}
+      {/* Glow accents */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full opacity-15 blur-[120px] bg-primary" />
+      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full opacity-8 blur-[100px] bg-secondary" />
+
+      {/* Floating shapes */}
       <motion.div
         animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
@@ -82,8 +95,8 @@ export function HeroSection() {
           </div>
 
           <p className="mx-auto max-w-2xl text-muted-foreground text-base sm:text-lg mb-10">
-            Connect your YouTube, Facebook, Instagram & TikTok accounts. 
-            Schedule automated daily uploads with AI-generated SEO titles. 
+            Connect your YouTube, Facebook, Instagram & TikTok accounts.
+            Schedule automated daily uploads with AI-generated SEO titles.
             Grow your audience on autopilot.
           </p>
 
@@ -101,7 +114,6 @@ export function HeroSection() {
             </a>
           </div>
 
-          {/* Stats */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

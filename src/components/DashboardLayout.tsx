@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import {
   Zap, LayoutDashboard, Link2, FileVideo, CalendarClock,
-  CreditCard, Settings, LogOut, ChevronLeft, ChevronRight,
+  CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, Shield,
 } from "lucide-react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 const sidebarItems = [
   { icon: LayoutDashboard, label: "Overview", path: "/dashboard" },
@@ -18,33 +19,10 @@ const sidebarItems = [
 
 export default function DashboardLayout() {
   const [collapsed, setCollapsed] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-      if (!session?.user) navigate("/auth");
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-      if (!session?.user) navigate("/auth");
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast({ title: "Signed out successfully" });
-    navigate("/");
-  };
 
   if (loading) {
     return (
@@ -54,9 +32,19 @@ export default function DashboardLayout() {
     );
   }
 
+  if (!user) {
+    navigate("/auth");
+    return null;
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast({ title: "Signed out successfully" });
+    navigate("/");
+  };
+
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 h-full border-r border-border bg-card/50 backdrop-blur-sm flex flex-col transition-all duration-300 z-40 ${
           collapsed ? "w-16" : "w-60"
@@ -75,9 +63,7 @@ export default function DashboardLayout() {
                 key={item.path}
                 to={item.path}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                  active
-                    ? "bg-primary/10 text-primary font-medium"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  active ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
@@ -85,6 +71,16 @@ export default function DashboardLayout() {
               </Link>
             );
           })}
+
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-yellow-500 hover:bg-yellow-500/10 transition-colors"
+            >
+              <Shield className="h-4 w-4 shrink-0" />
+              {!collapsed && <span>Admin Panel</span>}
+            </Link>
+          )}
         </nav>
 
         <div className="p-2 border-t border-border space-y-1">
@@ -105,7 +101,6 @@ export default function DashboardLayout() {
         </div>
       </aside>
 
-      {/* Main content */}
       <main className={`flex-1 transition-all duration-300 ${collapsed ? "ml-16" : "ml-60"}`}>
         <header className="h-16 border-b border-border flex items-center px-6">
           <div className="text-sm text-muted-foreground">
