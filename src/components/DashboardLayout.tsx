@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import {
-  Zap, LayoutDashboard, Link2, FolderVideo, CalendarClock,
+  Zap, LayoutDashboard, Link2, FileVideo, CalendarClock,
   CreditCard, Settings, LogOut, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";

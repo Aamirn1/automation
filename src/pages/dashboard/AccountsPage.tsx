@@ -1,4 +1,4 @@
-import { Link2, Youtube, Facebook, Instagram, Music2 } from "lucide-react";
+import { Link2, Video, Globe, Camera, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const platforms = [

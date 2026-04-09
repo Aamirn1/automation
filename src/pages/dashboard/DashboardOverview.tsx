@@ -1,4 +1,4 @@
-import { Link2, FolderVideo, CalendarClock, CreditCard, ArrowRight } from "lucide-react";
+import { Link2, FileVideo, CalendarClock, CreditCard, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const steps = [

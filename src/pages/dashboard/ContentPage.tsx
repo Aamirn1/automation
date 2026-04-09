@@ -1,4 +1,4 @@
-import { FolderVideo, Upload, ExternalLink } from "lucide-react";
+import { FileVideo, Upload, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ContentPage() {
