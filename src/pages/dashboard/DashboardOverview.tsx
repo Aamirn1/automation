@@ -9,7 +9,7 @@ const steps = [
     link: "/dashboard/accounts",
   },
   {
-    icon: FolderVideo,
+    icon: FileVideo,
     title: "Select Content",
     desc: "Choose pre-made videos or add your Google Drive link",
     link: "/dashboard/content",
