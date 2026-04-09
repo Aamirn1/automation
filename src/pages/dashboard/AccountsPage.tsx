@@ -2,9 +2,9 @@ import { Link2, Video, Globe, Camera, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const platforms = [
-  { name: "YouTube", icon: Youtube, connected: false, color: "text-red-500" },
-  { name: "Facebook", icon: Facebook, connected: false, color: "text-blue-500" },
-  { name: "Instagram", icon: Instagram, connected: false, color: "text-pink-500" },
+  { name: "YouTube", icon: Video, connected: false, color: "text-red-500" },
+  { name: "Facebook", icon: Globe, connected: false, color: "text-blue-500" },
+  { name: "Instagram", icon: Camera, connected: false, color: "text-pink-500" },
   { name: "TikTok", icon: Music2, connected: false, color: "text-foreground" },
 ];
 

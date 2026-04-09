@@ -10,7 +10,7 @@ export default function ContentPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-xl border border-border bg-card p-6" style={{ boxShadow: "var(--shadow-card)" }}>
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary mb-4">
-            <FolderVideo className="h-5 w-5" />
+            <FileVideo className="h-5 w-5" />
           </div>
           <h3 className="font-heading font-semibold mb-2">Pre-made Content</h3>
           <p className="text-sm text-muted-foreground mb-4">

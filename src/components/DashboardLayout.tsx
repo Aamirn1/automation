@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 const sidebarItems = [
   { icon: LayoutDashboard, label: "Overview", path: "/dashboard" },
   { icon: Link2, label: "Accounts", path: "/dashboard/accounts" },
-  { icon: FolderVideo, label: "Content", path: "/dashboard/content" },
+  { icon: FileVideo, label: "Content", path: "/dashboard/content" },
   { icon: CalendarClock, label: "Schedule", path: "/dashboard/schedule" },
   { icon: CreditCard, label: "Subscription", path: "/dashboard/subscription" },
   { icon: Settings, label: "Settings", path: "/dashboard/settings" },
