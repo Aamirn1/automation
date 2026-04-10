@@ -8,9 +8,13 @@ export default function AdminSchedules() {
     (async () => {
       const { data } = await supabase
         .from("scheduled_posts")
-        .select("*, profiles!scheduled_posts_user_id_fkey(display_name, email), content_items(title), social_accounts(platform, platform_username)")
+        .select("*, content_items(title), social_accounts(platform, platform_username)")
         .order("scheduled_at", { ascending: true });
-      setPosts(data || []);
+      if (!data) { setPosts([]); return; }
+      const userIds = [...new Set(data.map(p => p.user_id))];
+      const { data: profiles } = await supabase.from("profiles").select("user_id, display_name, email").in("user_id", userIds);
+      const profileMap = Object.fromEntries((profiles || []).map(p => [p.user_id, p]));
+      setPosts(data.map(p => ({ ...p, profile: profileMap[p.user_id] || null })));
     })();
   }, []);
 
@@ -34,7 +38,7 @@ export default function AdminSchedules() {
             <tbody>
               {posts.map(p => (
                 <tr key={p.id} className="border-t border-border">
-                  <td className="p-3">{p.profiles?.display_name || p.profiles?.email || "—"}</td>
+                  <td className="p-3">{p.profile?.display_name || p.profile?.email || "—"}</td>
                   <td className="p-3">{p.content_items?.title || "—"}</td>
                   <td className="p-3 capitalize">{p.social_accounts?.platform || "—"}</td>
                   <td className="p-3 text-muted-foreground">{new Date(p.scheduled_at).toLocaleString()}</td>
