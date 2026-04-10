@@ -3,7 +3,7 @@ import {
   Zap, LayoutDashboard, Link2, FileVideo, CalendarClock,
   CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, Shield,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,6 +24,12 @@ export default function DashboardLayout() {
   const location = useLocation();
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [loading, user, navigate]);
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -33,7 +39,6 @@ export default function DashboardLayout() {
   }
 
   if (!user) {
-    navigate("/auth");
     return null;
   }
 
