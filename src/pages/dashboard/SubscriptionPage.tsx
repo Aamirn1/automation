@@ -1,16 +1,12 @@
 import { useState, useEffect } from "react";
-import { Check, Zap, CreditCard, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { Check, Zap, CreditCard, Clock, CheckCircle2, XCircle, AlertCircle, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
-const plans = [
-  { name: "Test", price: "Free", amount: 0, period: "5 days", features: ["5 video uploads", "1 connected account", "1 video/day"] },
-  { name: "Standard", price: "$50", amount: 50, period: "30 days", features: ["30 video uploads", "Up to 3 accounts", "1 video/day", "AI SEO"], highlighted: true },
-  { name: "Premium", price: "$70", amount: 70, period: "30 days", features: ["60 video uploads", "Up to 4 accounts", "1-2 videos/day", "Advanced AI SEO"] },
-];
+import { useSubscription } from "@/hooks/useSubscription";
+import { PLAN_LIST } from "@/lib/subscription";
 
 export default function SubscriptionPage() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
@@ -18,21 +14,15 @@ export default function SubscriptionPage() {
   const [transactionId, setTransactionId] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("bank_transfer");
   const [submitting, setSubmitting] = useState(false);
-  const [subscription, setSubscription] = useState<any>(null);
   const [paymentRequests, setPaymentRequests] = useState<any[]>([]);
   const { toast } = useToast();
+  const { subscription, isActive, remaining, daysLeft, reload: reloadSub } = useSubscription();
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadPayments(); }, []);
 
-  const loadData = async () => {
+  const loadPayments = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-
-    const { data: sub } = await supabase.from("subscriptions").select("*").eq("user_id", user.id).maybeSingle();
-    setSubscription(sub);
-
     const { data: payments } = await supabase.from("payment_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
     setPaymentRequests(payments || []);
   };
@@ -42,14 +32,15 @@ export default function SubscriptionPage() {
     if (!selectedPlan) return;
     setSubmitting(true);
 
-    const plan = plans.find(p => p.name === selectedPlan)!;
+    const plan = PLAN_LIST.find(p => p.label === selectedPlan);
+    if (!plan) return;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     const { error } = await supabase.from("payment_requests").insert({
       user_id: user.id,
-      plan: plan.name.toLowerCase(),
-      amount: plan.amount,
+      plan: plan.name,
+      amount: plan.price,
       payer_name: payerName,
       transaction_id: transactionId,
       payment_method: paymentMethod,
@@ -60,9 +51,8 @@ export default function SubscriptionPage() {
     } else {
       toast({ title: "Payment submitted!", description: "Your payment is pending admin approval." });
       setSelectedPlan(null);
-      setPayerName("");
-      setTransactionId("");
-      loadData();
+      setPayerName(""); setTransactionId("");
+      loadPayments();
     }
     setSubmitting(false);
   };
@@ -82,7 +72,7 @@ export default function SubscriptionPage() {
 
     if (!error) {
       toast({ title: "Free trial requested!", description: "Pending admin activation." });
-      loadData();
+      loadPayments();
     }
   };
 
@@ -92,27 +82,80 @@ export default function SubscriptionPage() {
     return <Clock className="h-4 w-4 text-yellow-500" />;
   };
 
+  // Usage progress
+  const usagePercent = subscription
+    ? Math.min(100, Math.round((subscription.uploadsUsed / subscription.totalUploadsAllowed) * 100))
+    : 0;
+
   return (
     <div>
       <h1 className="font-heading text-2xl font-bold mb-1">Subscription</h1>
       <p className="text-muted-foreground text-sm mb-8">Choose a plan and manage your subscription.</p>
 
-      {/* Current subscription */}
-      <div className="rounded-lg border border-border bg-card/50 p-4 mb-8 flex items-center gap-3">
-        <CreditCard className="h-5 w-5 text-muted-foreground" />
-        <div>
-          <p className="text-sm font-medium">
-            {subscription?.status === "active"
-              ? `Active: ${subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)} Plan`
-              : "No active subscription"}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {subscription?.expires_at
-              ? `Expires: ${new Date(subscription.expires_at).toLocaleDateString()}`
-              : "Select a plan below to get started"}
-          </p>
+      {/* Current subscription status */}
+      {isActive && subscription ? (
+        <div className="rounded-xl border border-primary/20 bg-card p-5 mb-8" style={{ boxShadow: "var(--shadow-glow)" }}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <CreditCard className="h-5 w-5 text-primary" />
+              <div>
+                <p className="text-sm font-medium capitalize">{subscription.plan} Plan — Active</p>
+                <p className="text-xs text-muted-foreground">
+                  {daysLeft} days remaining · Expires {subscription.expiresAt ? new Date(subscription.expiresAt).toLocaleDateString() : "N/A"}
+                </p>
+              </div>
+            </div>
+            {daysLeft <= 5 && (
+              <span className="text-xs bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded-full">Expiring Soon</span>
+            )}
+          </div>
+
+          {/* Usage stats */}
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="rounded-lg bg-muted/50 p-3 text-center">
+              <p className="text-lg font-bold font-heading">{subscription.uploadsUsed}</p>
+              <p className="text-xs text-muted-foreground">Uploads Used</p>
+            </div>
+            <div className="rounded-lg bg-muted/50 p-3 text-center">
+              <p className="text-lg font-bold font-heading text-primary">{remaining}</p>
+              <p className="text-xs text-muted-foreground">Remaining</p>
+            </div>
+            <div className="rounded-lg bg-muted/50 p-3 text-center">
+              <p className="text-lg font-bold font-heading">{subscription.maxAccounts}</p>
+              <p className="text-xs text-muted-foreground">Max Accounts</p>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div className="relative">
+            <div className="h-2 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full rounded-full bg-primary transition-all"
+                style={{ width: `${usagePercent}%` }}
+              />
+            </div>
+            <div className="flex justify-between mt-1">
+              <span className="text-xs text-muted-foreground">{usagePercent}% used</span>
+              <span className="text-xs text-muted-foreground">{subscription.totalUploadsAllowed} total</span>
+            </div>
+          </div>
+
+          {remaining <= 5 && remaining > 0 && (
+            <div className="mt-4 flex items-center gap-2 text-xs text-yellow-500">
+              <AlertCircle className="h-3 w-3" />
+              Low uploads remaining. Consider upgrading your plan.
+            </div>
+          )}
         </div>
-      </div>
+      ) : (
+        <div className="rounded-lg border border-border bg-card/50 p-4 mb-8 flex items-center gap-3">
+          <CreditCard className="h-5 w-5 text-muted-foreground" />
+          <div>
+            <p className="text-sm font-medium">No active subscription</p>
+            <p className="text-xs text-muted-foreground">Select a plan below to get started</p>
+          </div>
+        </div>
+      )}
 
       {/* Payment form */}
       {selectedPlan && selectedPlan !== "Test" && (
@@ -150,7 +193,7 @@ export default function SubscriptionPage() {
 
       {/* Plans */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {plans.map((plan) => (
+        {PLAN_LIST.map((plan) => (
           <div
             key={plan.name}
             className={`relative rounded-xl border p-5 flex flex-col ${plan.highlighted ? "border-primary/60" : "border-border"} bg-card`}
@@ -161,10 +204,10 @@ export default function SubscriptionPage() {
                 <Zap className="h-3 w-3" /> Popular
               </div>
             )}
-            <h3 className="font-heading text-lg font-semibold">{plan.name}</h3>
+            <h3 className="font-heading text-lg font-semibold">{plan.label}</h3>
             <div className="mt-2 mb-4">
-              <span className="text-3xl font-bold font-heading">{plan.price}</span>
-              {plan.price !== "Free" && <span className="text-muted-foreground text-sm ml-1">/ {plan.period}</span>}
+              <span className="text-3xl font-bold font-heading">{plan.priceLabel}</span>
+              {plan.priceLabel !== "Free" && <span className="text-muted-foreground text-sm ml-1">/ {plan.period}</span>}
             </div>
             <ul className="space-y-2 mb-6 flex-1">
               {plan.features.map((f) => (
@@ -174,10 +217,13 @@ export default function SubscriptionPage() {
               ))}
             </ul>
             <Button
-              onClick={() => plan.name === "Test" ? handleSelectFreePlan() : setSelectedPlan(plan.name)}
+              onClick={() => plan.name === "test" ? handleSelectFreePlan() : setSelectedPlan(plan.label)}
               className={plan.highlighted ? "bg-primary hover:bg-primary/90 text-primary-foreground" : "bg-muted hover:bg-muted/80 text-foreground"}
+              disabled={isActive && subscription?.plan === plan.name}
             >
-              {plan.name === "Test" ? "Start Free Trial" : "Select Plan"}
+              {isActive && subscription?.plan === plan.name
+                ? "Current Plan"
+                : plan.name === "test" ? "Start Free Trial" : "Select Plan"}
             </Button>
           </div>
         ))}
@@ -195,6 +241,7 @@ export default function SubscriptionPage() {
                   <div>
                     <p className="text-sm font-medium capitalize">{pr.plan} Plan — ${pr.amount}</p>
                     <p className="text-xs text-muted-foreground">{new Date(pr.created_at).toLocaleDateString()}</p>
+                    {pr.admin_note && <p className="text-xs text-muted-foreground mt-0.5">Note: {pr.admin_note}</p>}
                   </div>
                 </div>
                 <span className={`text-xs font-medium px-2 py-1 rounded-full ${

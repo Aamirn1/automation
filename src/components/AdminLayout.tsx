@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
-import { Zap, LayoutDashboard, Users, CreditCard, FileVideo, CalendarClock, ArrowLeft } from "lucide-react";
+import { Zap, LayoutDashboard, Users, CreditCard, FileVideo, CalendarClock, ArrowLeft, ScrollText, Settings, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const sidebarItems = [
@@ -9,6 +9,8 @@ const sidebarItems = [
   { icon: CreditCard, label: "Payments", path: "/admin/payments" },
   { icon: FileVideo, label: "Content", path: "/admin/content" },
   { icon: CalendarClock, label: "Schedules", path: "/admin/schedules" },
+  { icon: ScrollText, label: "Audit Logs", path: "/admin/logs" },
+  { icon: Settings, label: "Settings", path: "/admin/settings" },
 ];
 
 export default function AdminLayout() {
@@ -34,7 +36,7 @@ export default function AdminLayout() {
     <div className="flex min-h-screen bg-background">
       <aside className="fixed top-0 left-0 h-full w-60 border-r border-border bg-card/50 backdrop-blur-sm flex flex-col z-40">
         <div className="flex items-center gap-2 p-4 border-b border-border h-16">
-          <Zap className="h-5 w-5 text-primary shrink-0" />
+          <Shield className="h-5 w-5 text-yellow-500 shrink-0" />
           <span className="text-shine text-lg font-bold font-heading truncate">Admin Panel</span>
         </div>
 

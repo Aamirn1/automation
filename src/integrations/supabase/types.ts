@@ -7,13 +7,68 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          id: string
+          actor_id: string | null
+          actor_email: string | null
+          action: string
+          entity_type: string | null
+          entity_id: string | null
+          details: Json
+          ip_address: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          actor_id?: string | null
+          actor_email?: string | null
+          action: string
+          entity_type?: string | null
+          entity_id?: string | null
+          details?: Json
+          ip_address?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          actor_id?: string | null
+          actor_email?: string | null
+          action?: string
+          entity_type?: string | null
+          entity_id?: string | null
+          details?: Json
+          ip_address?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      content_categories: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       content_items: {
         Row: {
           created_at: string
@@ -24,6 +79,12 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          category_id: string | null
+          source_type: string
+          source_ref: string | null
+          ai_title: string | null
+          ai_description: string | null
+          video_url: string | null
         }
         Insert: {
           created_at?: string
@@ -34,6 +95,12 @@ export type Database = {
           title: string
           updated_at?: string
           user_id: string
+          category_id?: string | null
+          source_type?: string
+          source_ref?: string | null
+          ai_title?: string | null
+          ai_description?: string | null
+          video_url?: string | null
         }
         Update: {
           created_at?: string
@@ -44,6 +111,132 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          category_id?: string | null
+          source_type?: string
+          source_ref?: string | null
+          ai_title?: string | null
+          ai_description?: string | null
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      content_library: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          video_url: string
+          thumbnail_url: string | null
+          category_id: string | null
+          tags: string[]
+          duration_seconds: number | null
+          is_active: boolean
+          usage_count: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          video_url: string
+          thumbnail_url?: string | null
+          category_id?: string | null
+          tags?: string[]
+          duration_seconds?: number | null
+          is_active?: boolean
+          usage_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          video_url?: string
+          thumbnail_url?: string | null
+          category_id?: string | null
+          tags?: string[]
+          duration_seconds?: number | null
+          is_active?: boolean
+          usage_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      google_drive_links: {
+        Row: {
+          id: string
+          user_id: string
+          drive_folder_url: string
+          label: string | null
+          status: string
+          admin_note: string | null
+          approved_by: string | null
+          approved_at: string | null
+          video_count: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          drive_folder_url: string
+          label?: string | null
+          status?: string
+          admin_note?: string | null
+          approved_by?: string | null
+          approved_at?: string | null
+          video_count?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          drive_folder_url?: string
+          label?: string | null
+          status?: string
+          admin_note?: string | null
+          approved_by?: string | null
+          approved_at?: string | null
+          video_count?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          type: string
+          title: string
+          message: string
+          is_read: boolean
+          metadata: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: string
+          title: string
+          message: string
+          is_read?: boolean
+          metadata?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          type?: string
+          title?: string
+          message?: string
+          is_read?: boolean
+          metadata?: Json
+          created_at?: string
         }
         Relationships: []
       }
@@ -60,6 +253,7 @@ export type Database = {
           transaction_id: string
           updated_at: string
           user_id: string
+          screenshot_url: string | null
         }
         Insert: {
           admin_note?: string | null
@@ -73,6 +267,7 @@ export type Database = {
           transaction_id: string
           updated_at?: string
           user_id: string
+          screenshot_url?: string | null
         }
         Update: {
           admin_note?: string | null
@@ -86,6 +281,7 @@ export type Database = {
           transaction_id?: string
           updated_at?: string
           user_id?: string
+          screenshot_url?: string | null
         }
         Relationships: []
       }
@@ -128,6 +324,13 @@ export type Database = {
           scheduled_at: string
           status: string
           user_id: string
+          platform_post_id: string | null
+          error_message: string | null
+          retry_count: number
+          ai_title: string | null
+          ai_description: string | null
+          started_at: string | null
+          completed_at: string | null
         }
         Insert: {
           account_id?: string | null
@@ -137,6 +340,13 @@ export type Database = {
           scheduled_at: string
           status?: string
           user_id: string
+          platform_post_id?: string | null
+          error_message?: string | null
+          retry_count?: number
+          ai_title?: string | null
+          ai_description?: string | null
+          started_at?: string | null
+          completed_at?: string | null
         }
         Update: {
           account_id?: string | null
@@ -146,6 +356,13 @@ export type Database = {
           scheduled_at?: string
           status?: string
           user_id?: string
+          platform_post_id?: string | null
+          error_message?: string | null
+          retry_count?: number
+          ai_title?: string | null
+          ai_description?: string | null
+          started_at?: string | null
+          completed_at?: string | null
         }
         Relationships: [
           {
@@ -173,6 +390,10 @@ export type Database = {
           platform_username: string | null
           status: string
           user_id: string
+          refresh_token: string | null
+          token_expires_at: string | null
+          platform_account_id: string | null
+          api_key: string | null
         }
         Insert: {
           access_token?: string | null
@@ -182,6 +403,10 @@ export type Database = {
           platform_username?: string | null
           status?: string
           user_id: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          platform_account_id?: string | null
+          api_key?: string | null
         }
         Update: {
           access_token?: string | null
@@ -191,6 +416,10 @@ export type Database = {
           platform_username?: string | null
           status?: string
           user_id?: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          platform_account_id?: string | null
+          api_key?: string | null
         }
         Relationships: []
       }
@@ -204,6 +433,10 @@ export type Database = {
           status: string
           updated_at: string
           user_id: string
+          max_accounts: number
+          max_uploads_per_day: number
+          total_uploads_allowed: number
+          uploads_used: number
         }
         Insert: {
           created_at?: string
@@ -214,6 +447,10 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id: string
+          max_accounts?: number
+          max_uploads_per_day?: number
+          total_uploads_allowed?: number
+          uploads_used?: number
         }
         Update: {
           created_at?: string
@@ -224,6 +461,10 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+          max_accounts?: number
+          max_uploads_per_day?: number
+          total_uploads_allowed?: number
+          uploads_used?: number
         }
         Relationships: []
       }
@@ -256,6 +497,34 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      log_audit: {
+        Args: {
+          _actor_id: string
+          _action: string
+          _entity_type?: string
+          _entity_id?: string
+          _details?: Json
+        }
+        Returns: undefined
+      }
+      create_notification: {
+        Args: {
+          _user_id: string
+          _type: string
+          _title: string
+          _message: string
+          _metadata?: Json
+        }
+        Returns: string
+      }
+      increment_uploads_used: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
+      increment_usage_count: {
+        Args: { _item_id: string }
+        Returns: undefined
       }
     }
     Enums: {
